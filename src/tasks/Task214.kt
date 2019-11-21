@@ -1,5 +1,3 @@
-package com.example.hack
-
 import java.io.File
 
 const val TAVERN_NAME = "Taernyl's Folly"
@@ -8,7 +6,7 @@ val menuList = File("data/menu.txt").readText().split("\n")
 val lastName = listOf("Ironfoot", "Fernsworth", "Baggins")
 val uniquePatrons = mutableSetOf<String>()
 var patronGold = mutableMapOf<String, Double>()
-
+var forDeletePatron = mutableSetOf<String>()
 
 
 fun main() {
@@ -24,7 +22,7 @@ fun main() {
     }
 
     uniquePatrons.forEach {
-        patronGold[it] = 6.0
+        patronGold[it] = 10.0
     }
 
     // Посетители делают заказ
@@ -35,12 +33,28 @@ fun main() {
         var orderCount = 0
         while (orderCount < 2) {
             placeOrder(patron, menuList.shuffled().first())
-            orderCount++
+            if (patronGold.getValue(patron) <= 0) {
+                forDeletePatron.add(patron)
+                println("$patron balance < 0")
+                break
+            } else {
+                orderCount++
+            }
+
         }
     }
+    deletePatron()
     displayPatronBalances()
 
 
+}
+
+fun deletePatron() {
+    forDeletePatron.forEach { item ->
+        uniquePatrons.remove(item)
+        patronGold.remove(item)
+    }
+    forDeletePatron.clear()
 }
 
 fun perfomPurchase(price: Double, patronName: String) {
@@ -134,9 +148,19 @@ private fun toDragonSpeak(phrase: String) =
         }
     }
 
-fun displayPatronBalances (){
+fun displayPatronBalances() {
     println("*********** Patron's balance ************")
     patronGold.forEach { patron, balance ->
         println("$patron , balance: ${"%.2f".format(balance)}")
+    }
+}
+
+fun checkBalance() {
+    patronGold.forEach { patron: String, balance: Double ->
+        if (balance <= 0) {
+            uniquePatrons.remove(patron)
+            //patronGold.remove(patron)
+            println("$patron balance < 0")
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.hack
+package tasks
 
 fun main() {
     val name = "Madrigal"
