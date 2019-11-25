@@ -2,29 +2,18 @@ package com.example.hack
 
 fun main() {
 
-
-    val auraVisible = isBlessed && healthPoints > 50 || isImmortal
-    val auraColor = auraColor(auraVisible)
-    val healthStatus = formatHealthStatus(healthPoints = healthPoints, isBlessed = isBlessed)
-
-    val player = Player()
+    val player = Player("Madrigal",100,true,false)
     player.castFireBall()
 
     //Состояние игрока
-    printPlayerStatus(auraColor, isBlessed, player.name, healthStatus)
+    printPlayerStatus(player)
 
 }
 
-private fun printPlayerStatus(
-    auraColor: String,
-    isBlessed: Boolean,
-    name: String,
-    healthStatus: String
+private fun printPlayerStatus(player: Player
 ) {
-    println("Aura: $auraColor" + " " + "\nIsBlessed: ${if (isBlessed) "YES" else "NO"} ")
-    println("$name $healthStatus")
+    println("Aura: ${player.auraVisible}" + " " + "IsBlessed: ${if (player.isBlessed) "YES" else "NO"} ")
+    println("${player.name} ${player.healthPoints}")
 }
-
-p
 
 

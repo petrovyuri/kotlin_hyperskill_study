@@ -1,14 +1,24 @@
 package com.example.hack
 
-class Player {
+import java.io.File
 
-    var healthPoints = 89
-    val isBlessed = true
-    private val isImmortal = false
+class Player(
+    _name: String,
+    _healthPoints: Int,
+    _isBlessed: Boolean,
+    _isImmortal: Boolean
+) {
+
+    var hometown = selectHometown()
+    var isBlessed = _isBlessed
+    var healthPoints = _healthPoints
+    var isImmortal = _isImmortal
+    val auraVisible = isBlessed && healthPoints > 50 || isImmortal
+    val auraColor = auraColor(auraVisible)
 
 
-    var name = "madrigal"
-        get() = field.capitalize()
+    var name = _name
+        get() = "${field.capitalize()} from $hometown"
         set(value) {
             field = value.trim()
         }
@@ -33,4 +43,11 @@ class Player {
         val auraColor = if (auraVisible) "Green" else "NONE"
         return auraColor
     }
+
+    private fun selectHometown() = File("data/towns.txt")
+        .readText()
+        .split("\n")
+        .shuffled()
+        .first()
+
 }
