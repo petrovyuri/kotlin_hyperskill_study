@@ -15,7 +15,7 @@ object Game {
             println(currentRoom.description())
             println(currentRoom.load())
             printPlayerStatus(player)
-            println()
+
             println("> Enter your command...")
             println(GameInput(readLine()).processCommand())
         }
