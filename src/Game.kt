@@ -1,19 +1,43 @@
 package com.example.hack
 
-fun main() {
-
+object Game {
     val player = Player("Madrigal",100,true,false)
-    player.castFireBall()
+    var currentRoom: Room = TownSquare()
 
-    //Состояние игрока
-    printPlayerStatus(player)
+    init {
+        println("Welcome, adventurer.")
+        player.castFireBall()
+    }
+
+    fun play() {
+        while (true) {
+            //The game
+            println(currentRoom.description())
+            println(currentRoom.load())
+            printPlayerStatus(player)
+            println()
+            println("> Enter your command...")
+            println(GameInput(readLine()).processCommand())
+        }
+    }
+
+    private fun printPlayerStatus(
+        player: Player
+    ) {
+        println(player.name)
+        println("Healths: ${player.healthPoints}")
+        println("Aura: ${player.auraVisible}" + " " + "IsBlessed: ${if (player.isBlessed) "YES" else "NO"} ")
+    }
+
+    private class GameInput(arg: String?) {
+        private val input = arg ?: ""
+        val command = input.split(" ")[0]
+        val argument = input.split(" ").getOrElse(1, { " " })
+
+        private fun commandNotFound() = "I'm not quite sure what you're trying to do!"
+        fun processCommand() = when (command.toLowerCase()) {
+            else -> commandNotFound()
+        }
+    }
 
 }
-
-private fun printPlayerStatus(player: Player
-) {
-    println("Aura: ${player.auraVisible}" + " " + "IsBlessed: ${if (player.isBlessed) "YES" else "NO"} ")
-    println("${player.name} ${player.healthPoints}")
-}
-
-

@@ -9,19 +9,19 @@ class Player(
     _isImmortal: Boolean
 ) {
 
+    val currentPosition = Coordinate(0, 0)
     var hometown = selectHometown()
     var isBlessed = _isBlessed
     var healthPoints = _healthPoints
     var isImmortal = _isImmortal
     val auraVisible = isBlessed && healthPoints > 50 || isImmortal
     val auraColor = auraColor(auraVisible)
-
-
     var name = _name
-        get() = "${field.capitalize()} from $hometown"
+        get() = "${field.capitalize()} from ${hometown}"
         set(value) {
             field = value.trim()
         }
+
 
     fun castFireBall(numFireBalls: Int = 2) {
         println("A glass of Fireball springs into existence. (x$numFireBalls)")
