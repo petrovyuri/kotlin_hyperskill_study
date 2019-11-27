@@ -7,12 +7,23 @@ class Player(
     _healthPoints: Int,
     _isBlessed: Boolean,
     _isImmortal: Boolean
-) {
+) : Fightable {
+    override var diceCount = 3
+    override var diceSides = 6
+    override fun attack(opponent: Fightable): Int {
+        val damageDealt = if (isBlessed) {
+            damageRoll * 2
+        } else {
+            damageRoll
+        }
+        opponent.healthPoints -= damageDealt
+        return damageDealt
+    }
 
-    val currentPosition = Coordinate(0, 0)
+    var currentPosition = Coordinate(0, 0)
     var hometown = selectHometown()
     var isBlessed = _isBlessed
-    var healthPoints = _healthPoints
+    override var healthPoints = _healthPoints
     var isImmortal = _isImmortal
     val auraVisible = isBlessed && healthPoints > 50 || isImmortal
     val auraColor = auraColor(auraVisible)
