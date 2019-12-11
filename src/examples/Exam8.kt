@@ -2,6 +2,9 @@ package com.example.hack.examples
 
 class DrumKit(val hasTopHat: Boolean, var hasSnare: Boolean) {
 
+    init {
+        println("Init")
+    }
 
     fun playTopHat() {
         if (hasTopHat) {

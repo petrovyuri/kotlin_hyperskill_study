@@ -1,8 +1,12 @@
 package com.example.hack.learn
 
-import com.example.hack.displayPatronBalances
-
 class Player(val title: String, val artist: String) {
+    var title2: String = title
+        get() = title + "11111"
+        set(value) {
+             field = value
+        }
+
     fun play() {
         println("Play $title  artist $artist")
     }
@@ -18,4 +22,9 @@ fun main() {
 
     player1.play()
     player1.stop()
+    player2.play()
+
+    println(player1.title2)
+    player1.title2 = "5"
+    println(player1.title2)
 }
