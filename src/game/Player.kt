@@ -1,4 +1,4 @@
-package com.example.hack
+package com.example.hack.game
 
 import java.io.File
 

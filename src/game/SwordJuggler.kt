@@ -1,6 +1,5 @@
-package com.example.hack
+package com.example.hack.game
 
-import java.lang.Exception
 import java.lang.IllegalStateException
 
 fun main() {

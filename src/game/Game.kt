@@ -1,18 +1,26 @@
-package com.example.hack
+package com.example.hack.game
 
 import kotlin.system.exitProcess
 
 object Game {
-    val player = Player("Madrigal",100,true,false)
-    var currentRoom: Room = TownSquare()
+    val player = Player("Madrigal", 100, true, false)
+    var currentRoom: Room =
+        TownSquare()
 
     init {
         //player.castFireBall()
     }
 
     private var worldMap = listOf(
-        listOf(currentRoom, Room("Tavern"), Room("Back Room")),
-        listOf(Room("Long Corridor"), Room("Generic Room"))
+        listOf(
+            currentRoom,
+            Room("Tavern"),
+            Room("Back Room")
+        ),
+        listOf(
+            Room("Long Corridor"),
+            Room("Generic Room")
+        )
     )
 
     private fun move(directionInput: String): String {

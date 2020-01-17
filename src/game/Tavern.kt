@@ -1,4 +1,4 @@
-package com.example.hack
+package com.example.hack.game
 
 import java.io.File
 
@@ -34,7 +34,10 @@ fun main() {
 
         var orderCount = 0
         while (orderCount < 2) {
-            placeOrder(patron, menuList.shuffled().first())
+            placeOrder(
+                patron,
+                menuList.shuffled().first()
+            )
             orderCount++
         }
     }

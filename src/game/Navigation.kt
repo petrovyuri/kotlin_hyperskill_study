@@ -1,4 +1,4 @@
-package com.example.hack
+package com.example.hack.game
 
 data class Coordinate(val x: Int, val y: Int) {
     val isInBounds = x >= 0 && y >= 0
@@ -13,5 +13,6 @@ data class Coordinate(val x: Int, val y: Int) {
            coordinate + playerCoordinate
     }
 
-    operator fun plus(other: Coordinate) = Coordinate(x + other.x, y + other.y)
+    operator fun plus(other: Coordinate) =
+        Coordinate(x + other.x, y + other.y)
 }

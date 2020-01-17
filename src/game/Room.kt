@@ -1,4 +1,4 @@
-package com.example.hack
+package com.example.hack.game
 
 open class Room(val name: String) {
     protected open val dangerLevel = 5
