@@ -2,7 +2,6 @@ package parking
 
 import java.util.*
 
-
 fun main() {
     val scanner = Scanner(System.`in`)
     var running = true
@@ -13,15 +12,82 @@ fun main() {
         when (entersUser[0]) {
             "park" -> park(mapOfParking, entersUser)
             "leave" -> leave(mapOfParking, entersUser)
-            "exit" -> running = false
             "create" -> create(mapOfParking, entersUser)
             "status" -> status(mapOfParking)
+            "reg_by_color" -> regByColor(mapOfParking, entersUser[1])
+            "spot_by_color" -> spotByColor(mapOfParking, entersUser[1])
+            "spot_by_reg" -> spotByReg(mapOfParking, entersUser[1])
+            "exit" -> running = false
         }
     }
 }
 
+fun spotByReg(mapOfParking: MutableMap<Int, String?>, number: String) {
+    if (mapOfParking.isNotEmpty()) {
+        var isFind = false
+        mapOfParking.forEach {
+            if (it.value != null) {
+                if (it.value!!.contains(number, ignoreCase = true)) {
+                    isFind = true
+                    println(it.key)
+                    return
+                }
+            }
+        }
+        if (!isFind) {
+            println("No cars with registration number $number were found.")
+        }
+    } else {
+        println("Sorry, parking lot is not created.")
+    }
+}
+
+fun spotByColor(mapOfParking: MutableMap<Int, String?>, color: String) {
+    if (mapOfParking.isNotEmpty()) {
+        var isFind = false
+        val result = mutableListOf<String>()
+        mapOfParking.forEach {
+            if (it.value != null) {
+                if (it.value!!.contains(color, ignoreCase = true)) {
+                    isFind = true
+                    result.add(it.key.toString())
+                }
+            }
+        }
+        if (!isFind) {
+            println("No cars with color $color were found.")
+        } else {
+            println(result.joinToString())
+        }
+    } else {
+        println("Sorry, parking lot is not created.")
+    }
+}
+
+fun regByColor(mapOfParking: MutableMap<Int, String?>, color: String) {
+    if (mapOfParking.isNotEmpty()) {
+        var isFind = false
+        val result = mutableListOf<String>()
+        mapOfParking.forEach {
+            if (it.value != null) {
+                if (it.value!!.contains(color, ignoreCase = true)) {
+                    isFind = true
+                    result.add(it.value!!.split(" ")[0])
+                }
+            }
+        }
+        if (!isFind) {
+            println("No cars with color $color were found.")
+        } else {
+            println(result.joinToString())
+        }
+    } else {
+        println("Sorry, parking lot is not created.")
+    }
+}
+
 fun status(mapOfParking: MutableMap<Int, String?>) {
-    if(mapOfParking.isNotEmpty()){
+    if (mapOfParking.isNotEmpty()) {
         var isEmptyPark = true
         mapOfParking.forEach {
             if (it.value != null) {
@@ -51,7 +117,7 @@ private fun create(mapOfParking: MutableMap<Int, String?>, entersUser: List<Stri
 }
 
 fun leave(mapOfParking: MutableMap<Int, String?>, entersUser: List<String>) {
-    if(mapOfParking.isNotEmpty()){
+    if (mapOfParking.isNotEmpty()) {
         val spot = entersUser[1].toInt()
         if (mapOfParking[spot] == null) {
             println("There is no car in the spot $spot.")
