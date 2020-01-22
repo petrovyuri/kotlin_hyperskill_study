@@ -2,6 +2,7 @@ package hyperskill.math
 
 import java.util.*
 
+// Нахождение угла двух векторов
 fun main() {
     val scanner = Scanner(System.`in`)
     val v1a = scanner.nextDouble()
