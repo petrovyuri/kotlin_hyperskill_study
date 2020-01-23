@@ -1,58 +1,119 @@
 package hyperskill.flashcards
 
-data class Card(val numberCard: Int,
-                val termin: String,
-                val define: String) {
-}
+import java.io.File
+import java.util.*
 
-
+data class Card(
+    var termin: String,
+    var define: String
+)
 fun main() {
-    println("Input the number of cards:")
-    val needCards = readLine()?.toInt()
     val listCards = mutableListOf<Card>()
-    addCards(needCards, listCards)
-    runGame(listCards)
+    var run = true
+    while (run) {
+        println("Input the action (add, remove, import, export, ask, exit):")
+        when (readLine()) {
+            "add" -> addCard(listCards)
+            "remove" -> removeCard(listCards)
+            "import" -> importCards(listCards)
+            "export" -> exportCards(listCards)
+            "ask" -> runGame(listCards)
+            "exit" -> run = false
+        }
+    }
+    println("Bye bye!")
 }
 
-private fun addCards(needCards: Int?, listCards: MutableList<Card>) {
-    for (i in 1..needCards!!) {
-        println("The card #$i:")
-        var termin = readLine()
-        termin = checkInputTermin(listCards, termin)
-        println("The definition of the card #$i:")
-        var define = readLine()
-        define = checkInputDefine(listCards, define)
-        listCards.add(Card(i, termin!!, define!!))
+fun exportCards(listCards: MutableList<Card>) {
+    println("File name:")
+    val file = File(readLine())
+    val string = StringBuilder()
+    listCards.forEach {
+        string.append("${it.termin}-${it.define}")
+        string.append("\n")
     }
+    file.writeText(string.toString())
+    println("${listCards.size} cards have been saved.")
 }
 
-fun checkInputDefine(listCards: MutableList<Card>, _define: String?): String? {
-    var result = _define
-    while (listCards.count { card -> card.define == result } != 0) {
-        println("The definition \"$result\" already exists. Try again:")
-        result = readLine()
+private fun importCards(listCards: MutableList<Card>) {
+    println("File name:")
+    val file = File(readLine())
+    var count = 0
+    if (file.exists()) {
+        file.forEachLine {
+            for (i in 0..listCards.lastIndex) {
+                if (listCards[i].termin == it.split("-")[0]) {
+                    listCards[i].define = it.split("-")[1]
+                    count++
+                    return@forEachLine
+                }
+            }
+            listCards.add(Card(it.split("-")[0], it.split("-")[1]))
+            count++
+        }
+        println("$count cards have been loaded.")
+    } else {
+        println("File not found.")
     }
-    return result
+
 }
 
-private fun checkInputTermin(listCards: MutableList<Card>, _termin: String?): String? {
-    var result = _termin
-    while (listCards.count { card -> card.termin == result } != 0) {
-        println("The card \"$result\" already exists. Try again:")
-        result = readLine()
+private fun removeCard(listCards: MutableList<Card>) {
+    println("The card:")
+    val needCardRemove = readLine()
+    if (listCards.removeIf {
+            it.termin == needCardRemove
+        }) {
+        println("The card has been removed.")
+    } else println("Can't remove \"$needCardRemove\": there is no such card.")
+}
+
+
+private fun addCard(listCards: MutableList<Card>) {
+    println("The card:")
+    val termin = checkInputTermin(listCards, readLine())
+    if (termin == "bad") {
+        return
     }
-    return result
+    println("The definition of the card:")
+    val define = checkInputDefine(listCards, readLine())
+    if (define == "bad") {
+        return
+    }
+    listCards.add(Card(termin, define))
+    println("The pair (\"$termin\":\"$define\") has been added.")
+}
+
+fun checkInputDefine(listCards: MutableList<Card>, _define: String?): String {
+    while (listCards.count { card -> card.define == _define } != 0) {
+        println("The definition \"$_define\" already exists. Try again:")
+        return "bad"
+    }
+    return _define!!
+}
+
+private fun checkInputTermin(listCards: MutableList<Card>, _termin: String?): String {
+    while (listCards.count { card -> card.termin == _termin } != 0) {
+        println("The card \"$_termin\" already exists.")
+        return "bad"
+    }
+    return _termin!!
 }
 
 private fun runGame(listCards: MutableList<Card>) {
-    listCards.forEach {
-        println("Print the definition of \"${it.termin}\"")
+    println("How many times to ask?")
+    val count = readLine()
+    repeat(count!!.toInt()) {
+        val currentCard = listCards[Random().nextInt(listCards.size)]
+        println(
+            "Print the definition of " +
+                    "\"${currentCard.termin}\""
+        )
         val input = readLine()
-        if (input == it.define) {
+        if (currentCard.define == input) {
             println("Correct answer.")
-        } else {
-            println(checkAnswer(listCards, it, input))
-        }
+        } else println(checkAnswer(listCards, currentCard, input))
     }
 }
 
@@ -64,4 +125,3 @@ fun checkAnswer(listCards: MutableList<Card>, card: Card, input: String?): Any? 
     }
     return "Wrong answer. The correct one is \"${card.define}\""
 }
-
