@@ -7,6 +7,7 @@ data class Card(
     var termin: String,
     var define: String,
     var errors: Int = 0
+
 )
 
 var listLogs = mutableListOf<String>()
