@@ -1,2 +1,3 @@
 black-white
 red-green
+russia-moscow

@@ -1,0 +1,11 @@
+;lk;lk;lk;lkInput the action (add, remove, import, export, ask, exit, log, hardest card, reset stats): 
+add 
+The card: 
+black 
+The definition of the card: 
+white 
+The pair ("black":"white") has been added. 
+Input the action (add, remove, import, export, ask, exit, log, hardest card, reset stats): 
+log 
+File name: 
+data/logs.txt 
