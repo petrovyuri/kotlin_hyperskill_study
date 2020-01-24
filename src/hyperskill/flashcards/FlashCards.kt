@@ -10,11 +10,14 @@ data class Card(
 
 )
 
-var listLogs = mutableListOf<String>()
-val listCards = mutableListOf<Card>()
+private var listLogs = mutableListOf<String>()
+private val listCards = mutableListOf<Card>()
+private var mapArgs = mutableMapOf<String, String>()
 
-fun main() {
+fun main(args: Array<String>) {
     var run = true
+    getArgsToMap(args)
+    loadCards()
     while (run) {
         printlnAndSaveLog("Input the action (add, remove, import, export, ask, exit, log, hardest card, reset stats):")
         when (readLineAndSaveLog()) {
@@ -26,13 +29,56 @@ fun main() {
             "reset stats" -> resetStats()
             "log" -> saveLogToFile()
             "ask" -> runGame()
-            "exit" -> run = false
+            "exit" -> {
+                printlnAndSaveLog("Bye bye!")
+                saveCards()
+                run = false
+            }
         }
     }
-    printlnAndSaveLog("Bye bye!")
 }
 
-fun saveLogToFile() {
+private fun getArgsToMap(args: Array<String>) {
+    if (args.size in 1..2) {
+        if (args[0] == "-import") {
+            mapArgs["-import"] = args[1]
+        } else {
+            mapArgs["-export"] = args[1]
+        }
+    } else if (args.size > 2) {
+        if (args[0] == "-import") {
+            mapArgs["-import"] = args[1]
+            mapArgs["-export"] = args[3]
+        } else {
+            mapArgs["-import"] = args[3]
+            mapArgs["-export"] = args[1]
+        }
+    }
+}
+
+private fun saveCards() {
+    if (mapArgs.containsKey("-export")) {
+        val file = File(mapArgs["-export"])
+        val string = StringBuilder()
+        listCards.forEach {
+            string.append("${it.termin}-${it.define}-${it.errors}")
+            string.append("\n")
+        }
+        file.writeText(string.toString())
+        printlnAndSaveLog("${listCards.size} cards have been saved.")
+    }
+}
+
+private fun loadCards() {
+    if (mapArgs.containsKey("-import")) {
+        File(mapArgs["-import"]).readLines().forEach {
+            listCards.add(Card(it.split("-")[0], it.split("-")[1], it.split("-")[2].toInt()))
+        }
+        printlnAndSaveLog("${listCards.size} cards have been loaded.")
+    }
+}
+
+private fun saveLogToFile() {
     printlnAndSaveLog("File name:")
     val logs: (List<String>) -> String = {
         var string = ""
@@ -45,7 +91,7 @@ fun saveLogToFile() {
     printlnAndSaveLog("The log has been saved.")
 }
 
-fun resetStats() {
+private fun resetStats() {
     listCards.forEach {
         it.errors = 0
     }
@@ -124,7 +170,7 @@ private fun importCards() {
                     return@forEachLine
                 }
             }
-            listCards.add(Card(it.split("-")[0], it.split("-")[1]))
+            listCards.add(Card(it.split("-")[0], it.split("-")[1], it.split("-")[2].toInt()))
             count++
         }
         printlnAndSaveLog("$count cards have been loaded.")
