@@ -1,8 +1,8 @@
 package hyperskill.ascii
 
 
-lateinit var name: String
-lateinit var status: String
+private lateinit var name: String
+private lateinit var status: String
 var sizeName = 0
 var sizeLine = 0
 
