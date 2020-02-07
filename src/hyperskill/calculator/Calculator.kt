@@ -1,9 +1,10 @@
 package hyperskill.calculator
 
+import java.math.BigInteger
 import java.util.*
 import kotlin.math.pow
 
-private var variablesMap = mutableMapOf<String, Int>()
+private var variablesMap = mutableMapOf<String, BigInteger>()
 private lateinit var input: String
 private var inputsList = mutableListOf<String>()
 private var stack = mutableListOf<String>()
@@ -51,13 +52,13 @@ private fun initLoop(scanner: Scanner) {
 }
 
 private fun calcResult() {
-    val stack = mutableListOf<Int>()
+    val stack = mutableListOf<BigInteger>()
     for (item in queue) {
         when {
             Regex("[\\da-zA-Z]").containsMatchIn(item) -> {
                 if (variablesMap.containsKey(item)) {
                     stack.add(variablesMap.getValue(item))
-                } else stack.add(item.toInt())
+                } else stack.add(item.toBigInteger())
             }
             item == "+" -> {
                 stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1] + stack.last()
@@ -76,7 +77,7 @@ private fun calcResult() {
                 stack.removeAt(stack.lastIndex)
             }
             item == "^" -> {
-                stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1].toDouble().pow(stack.last()).toInt()
+                stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1].pow(stack.last().toInt())
                 stack.removeAt(stack.lastIndex)
             }
         }
@@ -216,7 +217,7 @@ private fun addVarsMap(tempList: MutableList<String>) {
             if (variablesMap.containsKey(tempList[1].trim())) {
                 variablesMap[tempList[0].trim()] = variablesMap.getValue(tempList[1].trim())
             } else {
-                variablesMap[tempList[0].trim()] = tempList[1].trim().toInt()
+                variablesMap[tempList[0].trim()] = tempList[1].trim().toBigInteger()
             }
         } catch (e: Exception) {
             println("Invalid assignment")
