@@ -1,110 +1,91 @@
-package calculator
+package hyperskill.calculator
 
 import java.util.*
 import kotlin.math.pow
 
-var variablesMap = mutableMapOf<String, Int>()
-lateinit var input: String
-var inputsList = mutableListOf<String>()
-var stack = mutableListOf<String>()
-var queuePosFix = mutableListOf<String>()
-var queueInFix = mutableListOf<String>()
-var expressionList = mutableListOf<String>()
+private var variablesMap = mutableMapOf<String, Int>()
+private lateinit var input: String
+private var inputsList = mutableListOf<String>()
+private var stack = mutableListOf<String>()
+private var queue = mutableListOf<String>()
+private var expressionList = mutableListOf<String>()
 
 fun main() {
     val scanner = Scanner(System.`in`)
-    var exit = false
-
-    loop@ while (!exit) {
-
-        input = scanner.nextLine()
-        inputsList = input.split(" ") as MutableList<String>
-        stack.clear()
-        queuePosFix.clear()
-        expressionList.clear()
-        queueInFix.clear()
-
+    loop@ while (true) {
+        initLoop(scanner)
         if (inputsList[0].isEmpty() || input.first() == '/') {
             when (inputsList[0]) {
                 "" -> continue@loop
-                "/" -> variablesMap.forEach { s, i ->
-                    println("$s $i")
-                }
                 "/exit" -> {
                     println("Bye!")
-                    exit = true
+                    break@loop
                 }
                 "/help" -> println("The program calculates the sum of numbers")
                 else -> println("Unknown command")
             }
         } else if (Regex("[^\\w ^=]").containsMatchIn(input)) {
             try {
-                getParseInput()
-                getPostFixEx()
-                calcPostFixEx()
+                calcExpression()
             } catch (e: Exception) {
                 println("Invalid expression")
             }
         } else {
-            var tempList = input.trim().split("=") as MutableList<String>
-            if (tempList.size == 1) {
-                if (variablesMap.containsKey(tempList[0])) println(variablesMap.getValue(tempList[0]))
-                else println("Unknown variable")
-                continue@loop
-            }
-            tempList.removeIf { it == "" }
-            addMap(tempList)
+            initVars()
         }
     }
 }
 
-fun calcPostFixEx() {
-    var tempResult = 0
+private fun calcExpression() {
+    parseInput()
+    getPostFixEx()
+    calcResult()
+}
+
+private fun initLoop(scanner: Scanner) {
+    input = scanner.nextLine()
+    inputsList = input.split(" ") as MutableList<String>
     stack.clear()
-    for (i in 0 until queuePosFix.size) {
+    queue.clear()
+    expressionList.clear()
+}
+
+private fun calcResult() {
+    val stack = mutableListOf<Int>()
+    for (item in queue) {
         when {
-            Regex("[\\da-zA-Z]").containsMatchIn(queuePosFix[i]) -> {
-                if (variablesMap.containsKey(queuePosFix[i])){
-                    stack.add(variablesMap.getValue(queuePosFix[i]).toString())
-                } else stack.add(queuePosFix[i])
+            Regex("[\\da-zA-Z]").containsMatchIn(item) -> {
+                if (variablesMap.containsKey(item)) {
+                    stack.add(variablesMap.getValue(item))
+                } else stack.add(item.toInt())
             }
-            queuePosFix[i] == "+" -> {
-                tempResult = stack[stack.lastIndex].toInt() + stack[stack.lastIndex - 1].toInt()
-                stack[stack.lastIndex] = " "
-                stack[stack.lastIndex - 1] = tempResult.toString()
-                stack.remove(" ")
+            item == "+" -> {
+                stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1] + stack.last()
+                stack.removeAt(stack.lastIndex)
             }
-            queuePosFix[i] == "*" -> {
-                tempResult = stack[stack.lastIndex].toInt() * stack[stack.lastIndex - 1].toInt()
-                stack[stack.lastIndex] = " "
-                stack[stack.lastIndex - 1] = tempResult.toString()
-                stack.remove(" ")
+            item == "*" -> {
+                stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1] * stack.last()
+                stack.removeAt(stack.lastIndex)
             }
-            queuePosFix[i] == "/" -> {
-                tempResult = stack[stack.lastIndex - 1].toInt() / stack[stack.lastIndex].toInt()
-                stack[stack.lastIndex] = " "
-                stack[stack.lastIndex - 1] = tempResult.toString()
-                stack.remove(" ")
+            item == "/" -> {
+                stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1] / stack.last()
+                stack.removeAt(stack.lastIndex)
             }
-            queuePosFix[i] == "-" -> {
-                tempResult = stack[stack.lastIndex - 1].toInt() - stack[stack.lastIndex].toInt()
-                stack[stack.lastIndex] = " "
-                stack[stack.lastIndex - 1] = tempResult.toString()
-                stack.remove(" ")
+            item == "-" -> {
+                stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1] - stack.last()
+                stack.removeAt(stack.lastIndex)
             }
-            queuePosFix[i] == "^" -> {
-                tempResult = stack[stack.lastIndex - 1].toDouble().pow(stack[stack.lastIndex].toDouble()).toInt()
-                stack[stack.lastIndex] = " "
-                stack[stack.lastIndex - 1] = tempResult.toString()
-                stack.remove(" ")
+            item == "^" -> {
+                stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1].toDouble().pow(stack.last()).toInt()
+                stack.removeAt(stack.lastIndex)
             }
         }
     }
     println(stack.first())
 }
 
-fun getParseInput() {
-    var sb = StringBuilder()
+private fun parseInput() {
+    val sb = StringBuilder()
     var count = 0
     loop@ while (count <= input.length - 1) {
         when {
@@ -112,17 +93,17 @@ fun getParseInput() {
                 count++
                 continue@loop
             }
-            input[count].isDigit() || Regex("[a-zA-Z]").containsMatchIn(input[count].toString()) -> {
+            input[count].isDigit() || Regex("[a-zA-Z]").matches(input[count].toString()) -> {
                 while (count <= input.length - 1 && (input[count].isDigit() ||
-                            Regex("[a-zA-Z]").containsMatchIn(input[count].toString()))) {
+                            Regex("[a-zA-Z]").matches(input[count].toString()))) {
                     sb.append(input[count])
                     count++
                 }
-                expressionList . add (sb.toString())
-                sb . clear ()
+                expressionList.add(sb.toString())
+                sb.clear()
                 continue@loop
             }
-            Regex("[*/()]").containsMatchIn(input[count].toString()) -> {
+            Regex("[*/()]").matches(input[count].toString()) -> {
                 expressionList.add(input[count].toString())
             }
             input[count] == '+' -> {
@@ -155,102 +136,95 @@ fun getParseInput() {
     }
 }
 
-fun getPostFixEx() {
-    for (i in expressionList.indices) {
-        if (i < expressionList.size - 1) {
-            when {
-                expressionList[i] == "^" -> {
-                    stack.add(expressionList[i])
-                }
-                expressionList[i] == ")" -> {
-                    Loop@ for (h in stack.lastIndex downTo 0) {
-                        if (stack[h] == "(") {
-                            stack[h] = " "
-                            break@Loop
-                        }
-                        queuePosFix.add(stack[h])
-                        stack[h] = " "
-                    }
-                    stack.removeIf { it == " " }
-                }
-
-                expressionList[i] == "(" -> stack.add(expressionList[i])
-
-                Regex("[\\da-zA-Z]").containsMatchIn(expressionList[i]) -> {
-                    queuePosFix.add(expressionList[i])
-                }
-                Regex("[+-]").containsMatchIn(expressionList[i]) ->
-                    if (stack.isEmpty() || stack[stack.lastIndex] == "(") {
-                        stack.add(expressionList[i])
-                    } else if (stack[stack.lastIndex] == "/"
-                        || stack[stack.lastIndex] == "*"
-                        || stack[stack.lastIndex] == "^") {
-                        Loop@ for (j in stack.lastIndex downTo 0) {
-                            if (stack[j] == "(") break@Loop
-                            queuePosFix.add(stack[j])
-                            stack[j] = " "
-                        }
-                        stack.removeIf { it == " " }
-                        stack.add(expressionList[i])
-                    } else {
-                        queuePosFix.add(stack[stack.lastIndex])
-                        stack[stack.lastIndex] = expressionList[i]
-                    }
-                Regex("[*/]").containsMatchIn(expressionList[i]) -> {
-                    if (stack.isNotEmpty()
-                        && (stack[stack.lastIndex] == "*"
-                                || stack[stack.lastIndex] == "/")) {
-                        Loop@ for (z in stack.lastIndex downTo 0) {
-                            if (stack[z] == "(") break@Loop
-                            if (stack[z] == "+") break@Loop
-                            if (stack[z] == "-") break@Loop
-                            queuePosFix.add(stack[z])
-                            stack[z] = " "
-                        }
-                        stack.remove(" ")
-                    }
-                    stack.add(expressionList[i])
-                }
+private fun getPostFixEx() {
+    expressionList.forEach {
+        when {
+            it == "^" -> pushStack(it)
+            it == "(" -> pushStack(it)
+            it == ")" -> {
+                if (expressionList.contains("(")) {
+                    popStack()
+                } else throw Exception("Error")
             }
-        } else {
-            if (Regex("[\\da-zA-Z]").containsMatchIn(expressionList[i])) {
-                queuePosFix.add(expressionList[i])
-                for (j in stack.lastIndex downTo 0) {
-                    if (stack[j] != "(") {
-                        queuePosFix.add(stack[j])
-                    } else throw Exception("Error")
+
+            Regex("[\\da-zA-Z]").containsMatchIn(it) -> pushQueue(it)
+
+            Regex("[+-]").containsMatchIn(it) ->
+                if (stack.isEmpty() || stack.last() == "(") pushStack(it)
+                else if (stack.last().contains(Regex("[/*^]"))) {
+                    popStack()
+                    pushStack(it)
+                } else {
+                    pushQueue(stack.last())
+                    stack[stack.lastIndex] = it
                 }
-            } else if (expressionList[i] == ")") {
-                if (!stack.contains("(")) throw Exception("Error")
-                for (h in stack.lastIndex downTo 0) {
-                    if (stack[h] != "(") {
-                        queuePosFix.add(stack[h])
-                    }
+            Regex("[*/]").containsMatchIn(it) -> {
+                if (stack.isNotEmpty() && (stack.last() == "*" || stack.last() == "/")) {
+                    popStack()
                 }
+                pushStack(it)
+            }
+        }
+    }
+    if (stack.isNotEmpty()) {
+        for (i in stack.lastIndex downTo 0) {
+            if (stack[i] != "(") {
+                pushQueue(stack[i])
             } else throw Exception("Error")
         }
     }
 }
 
-fun addMap(tempList: MutableList<String>) {
-    if (tempList.size > 2) {
-        println("Invalid assignment")
-        return
-    }
-    if (Regex("\\d").containsMatchIn(tempList[0])) {
-        println("Invalid identifier")
-        return
-    }
-    try {
-        if (variablesMap.containsKey(tempList[1].trim())) {
-            variablesMap.put(tempList[0].trim(), variablesMap.getValue(tempList[1].trim()))
-        } else {
-            variablesMap.put(tempList[0].trim(), tempList[1].trim().toInt())
+private fun popStack() {
+    Loop@ for (i in stack.lastIndex downTo 0) {
+        if (stack[i] == "(") {
+            stack[i] = " "
+            break@Loop
         }
-    } catch (e: Exception) {
+        pushQueue(stack[i])
+        stack[i] = " "
+    }
+    stack.removeIf { it == " " }
+}
+
+private fun pushQueue(item: String) {
+    queue.add(item)
+}
+
+private fun pushStack(item: String) {
+    stack.add(item)
+}
+
+private fun initVars() {
+    val tempList = input.trim().split("=") as MutableList<String>
+    if (tempList.size == 1) {
+        if (variablesMap.containsKey(tempList[0])) println(variablesMap.getValue(tempList[0]))
+        else println("Unknown variable")
+        return
+    }
+    tempList.removeIf { it == "" }
+    addVarsMap(tempList)
+}
+
+private fun addVarsMap(tempList: MutableList<String>) {
+    if (tempList.size == 2) {
+        if (Regex("\\d").containsMatchIn(tempList[0])) {
+            println("Invalid identifier")
+            return
+        }
+        try {
+            if (variablesMap.containsKey(tempList[1].trim())) {
+                variablesMap[tempList[0].trim()] = variablesMap.getValue(tempList[1].trim())
+            } else {
+                variablesMap[tempList[0].trim()] = tempList[1].trim().toInt()
+            }
+        } catch (e: Exception) {
+            println("Invalid assignment")
+            return
+        }
+    } else {
         println("Invalid assignment")
         return
     }
 }
-
 
